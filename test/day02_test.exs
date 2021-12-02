@@ -2,8 +2,6 @@ defmodule Day02Test do
   use ExUnit.Case
 
   import Advent.Day02
-  alias Advent.Day02.Part1
-  alias Advent.Day02.Part2
 
   @example [
     "forward 5",
@@ -15,10 +13,10 @@ defmodule Day02Test do
   ]
 
   test "part1 example" do
-    assert pilot(@example, &Part1.exec/2) == 150
+    assert pilot(@example, &part1_exec/2) == 150
   end
 
   test "part2 example" do
-    assert pilot(@example, &Part2.exec/2) == 900
+    assert pilot(@example, &part2_exec/2) == 900
   end
 end
