@@ -1,29 +1,42 @@
 defmodule Advent.Day02 do
-  defmodule Instruction do
-    def parse(line) do
-      [direction, s] = String.split(line, " ")
-      {amount, _} = Integer.parse(s)
-      {direction, amount}
-    end
-
-    def eval({"forward", d}, {x, y}), do: {x + d, y}
-    def eval({"up", d}, {x, y}), do: {x, y - d}
-    def eval({"down", d}, {x, y}), do: {x, y + d}
-  end
+  alias Advent.Day02.{Part1, Part2}
 
   def load_input(), do: Advent.load("data/day02.txt")
 
   def part1() do
     load_input()
-    |> pilot()
+    |> pilot(&Part1.exec/2)
   end
 
-  def pilot(instructions) do
-    {x, y} =
-      instructions
-      |> Stream.map(&Instruction.parse/1)
-      |> Enum.reduce({0, 0}, &Instruction.eval/2)
+  def part2() do
+    load_input()
+    |> pilot(&Part2.exec/2)
+  end
+
+  def parse(line) do
+    [direction, string] = String.split(line, " ")
+    {amount, _} = Integer.parse(string)
+    {direction, amount}
+  end
+
+  def pilot(commands, exec) do
+    {x, y, _} =
+      commands
+      |> Stream.map(&parse/1)
+      |> Enum.reduce({0, 0, 0}, exec)
 
     x * y
+  end
+
+  defmodule Part1 do
+    def exec({"forward", d}, {x, y, a}), do: {x + d, y, a}
+    def exec({"up", d}, {x, y, a}), do: {x, y - d, a}
+    def exec({"down", d}, {x, y, a}), do: {x, y + d, a}
+  end
+
+  defmodule Part2 do
+    def exec({"forward", d}, {x, y, a}), do: {x + d, y + a * d, a}
+    def exec({"up", d}, {x, y, a}), do: {x, y, a - d}
+    def exec({"down", d}, {x, y, a}), do: {x, y, a + d}
   end
 end
