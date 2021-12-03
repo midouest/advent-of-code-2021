@@ -1,7 +1,7 @@
 defmodule Advent.Day01 do
   def load_input() do
     "data/day01.txt"
-    |> Advent.load()
+    |> Advent.stream()
     |> Advent.to_integers()
   end
 

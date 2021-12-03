@@ -1,5 +1,5 @@
 defmodule Advent.Day02 do
-  def load_input(), do: Advent.load("data/day02.txt")
+  def load_input(), do: Advent.stream("data/day02.txt")
 
   def part1() do
     load_input()
