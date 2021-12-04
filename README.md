@@ -1,6 +1,6 @@
 # Advent
 
-Solutions to Advent of Code 2021 in Elixir
+Solutions to [Advent of Code 2021](https://adventofcode.com/2021) in Elixir
 
 ## Usage
 
