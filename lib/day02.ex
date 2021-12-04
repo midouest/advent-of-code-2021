@@ -13,7 +13,7 @@ defmodule Advent.Day02 do
 
   def parse(line) do
     [direction, delta_str] = String.split(line, " ")
-    delta = Advent.to_integer(delta_str)
+    delta = String.to_integer(delta_str)
     {direction, delta}
   end
 
