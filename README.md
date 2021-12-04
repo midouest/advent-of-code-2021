@@ -4,11 +4,25 @@ Solutions to [Advent of Code 2021](https://adventofcode.com/2021) in Elixir
 
 ## Project Structure
 
-- `blog`: Write-ups on each solution
-- `data`: My puzzle input for each day
-- `lib/advent.ex`: Prelude module with common code
-- `lib/dayXX.ex`: Puzzle solution for a given day
-- `test/dayXX_test.exs`: Unit tests for a given day
+```
+.
+├── blog
+│   ├── dayXX.md  # Solution postmortem
+│   │   ...
+│
+├── data
+│   ├── dayXX.txt  # Puzzle input
+│   │   ...
+│
+├── lib
+│   ├── advent.ex  # Prelude module with common code
+│   ├── dayXX.ex   # Puzzle solution
+│   │   ...
+│
+└── test
+    ├── dayXX_test.exs  # Puzzle example unit tests
+    │   ...
+```
 
 ## Usage
 
