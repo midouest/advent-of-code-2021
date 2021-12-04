@@ -25,4 +25,5 @@ advent-*.tar
 # Temporary files, for example, from tests.
 /tmp/
 
+# Elixir Language Server output
 /.elixir_ls
