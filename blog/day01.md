@@ -112,3 +112,10 @@ end
 ```
 
 The `Stream` module was used instead of `Enum` for all intermediate steps in order to avoid creating intermediate lists.
+
+## I Learned
+
+- `Enum` and `Stream` modules
+- `File.open/2` and `IO.stream/2`
+- `Stream.chunk_every/2` and `Stream.chunk_every/4`
+- `Enum.count/2`
