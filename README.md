@@ -58,8 +58,10 @@ Run tests on the example data sets given in the puzzles.
 
 ```shell
 $ mix test
-.........
+........
 
-Finished in 0.03 seconds (0.00s async, 0.03s sync)
-9 tests, 0 failures
+Finished in 0.05 seconds (0.00s async, 0.05s sync)
+8 tests, 0 failures
+
+Randomized with seed 16181
 ```

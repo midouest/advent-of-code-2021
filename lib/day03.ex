@@ -28,7 +28,7 @@ defmodule Advent.Day03 do
       |> Integer.undigits(2)
 
     num_digits = String.length(List.first(lines))
-    epsilon = Bitwise.bxor(gamma, Integer.pow(2, num_digits) - 1)
+    epsilon = Bitwise.bxor(gamma, 2 ** num_digits - 1)
 
     gamma * epsilon
   end
