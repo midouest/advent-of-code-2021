@@ -88,8 +88,7 @@ defmodule Advent.Day04.Board do
 
   defp parse_line({line, row}, acc) do
     line
-    |> String.splitter(" ")
-    |> Stream.filter(&(&1 != ""))
+    |> String.splitter(" ", trim: true)
     |> Stream.with_index()
     |> Stream.map(fn {data, col} -> {data, {row, col}} end)
     |> Enum.reduce(acc, &put_cell/2)
