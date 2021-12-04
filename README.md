@@ -24,6 +24,16 @@ Solutions to [Advent of Code 2021](https://adventofcode.com/2021) in Elixir
     │   ...
 ```
 
+## Dependencies
+
+**Required**
+
+- [Elixir](https://elixir-lang.org)
+
+**Recommended**
+
+- [Visual Studio Code](https://code.visualstudio.com)
+
 ## Usage
 
 ### Interactive
