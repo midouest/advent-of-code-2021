@@ -3,7 +3,12 @@ defmodule Advent.Day04 do
 
   def part1() do
     load_puzzle()
-    |> play()
+    |> first_winner_score()
+  end
+
+  def part2() do
+    load_puzzle()
+    |> last_winner_score()
   end
 
   def load_puzzle(), do: Advent.read("data/day04.txt")
@@ -22,35 +27,48 @@ defmodule Advent.Day04 do
     {nums, boards}
   end
 
-  def play(lines) do
+  def first_winner_score(lines) do
+    play_until(lines, fn _, scores -> length(scores) == 1 end)
+    |> List.first()
+  end
+
+  def last_winner_score(lines) do
+    play_until(lines, &(length(&1) == length(&2)))
+    |> List.last()
+  end
+
+  def play_until(lines, fun) do
     {nums, boards} = parse_puzzle(lines)
 
-    Enum.reduce_while(nums, boards, fn num, boards ->
-      {boards, winner} = mark(num, boards)
+    Enum.reduce_while(nums, {boards, []}, fn num, {boards, prev_scores} ->
+      {boards, scores} = mark(num, boards)
 
-      if winner != nil do
-        {:halt, Board.score(winner, num)}
+      next_scores = prev_scores ++ scores
+
+      if fun.(boards, next_scores) do
+        {:halt, next_scores}
       else
-        {:cont, boards}
+        {:cont, {boards, next_scores}}
       end
     end)
   end
 
   def mark(num, boards) do
     updates = Enum.map(boards, &Board.mark(&1, num))
-    winner = Enum.find(updates, &elem(&1, 1))
+
+    scores =
+      Stream.filter(updates, &elem(&1, 1))
+      |> Stream.map(&elem(&1, 0))
+      |> Enum.map(&Board.score(&1, num))
+
     boards = Enum.map(updates, &elem(&1, 0))
 
-    if winner != nil do
-      {boards, elem(winner, 0)}
-    else
-      {boards, nil}
-    end
+    {boards, scores}
   end
 end
 
 defmodule Advent.Day04.Board do
-  defstruct [:state, :coords]
+  defstruct [:state, :coords, :won]
 
   alias __MODULE__, as: Board
 
@@ -70,19 +88,23 @@ defmodule Advent.Day04.Board do
         end)
       end)
 
-    %Board{state: state, coords: coords}
+    %Board{state: state, coords: coords, won: false}
   end
 
-  def mark(%Board{state: state, coords: coords} = board, num) do
-    coord = Map.get(coords, num)
-
-    if coord == nil do
+  def mark(%Board{state: state, coords: coords, won: won} = board, num) do
+    if won do
       {board, false}
     else
-      state = %{state | coord => {num, true}}
-      board = %Board{board | state: state}
-      won = check(state, coord)
-      {board, won}
+      coord = Map.get(coords, num)
+
+      if coord == nil do
+        {board, false}
+      else
+        state = %{state | coord => {num, true}}
+        won = check(state, coord)
+        board = %Board{board | state: state, won: won}
+        {board, won}
+      end
     end
   end
 

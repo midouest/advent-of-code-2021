@@ -89,11 +89,16 @@ defmodule Day04Test do
                {4, 2} => {12, false},
                {4, 3} => {3, false},
                {4, 4} => {7, false}
-             }
+             },
+             won: false
            }
   end
 
   test "part 1 example" do
-    assert play(@example) == 4512
+    assert first_winner_score(@example) == 4512
+  end
+
+  test "part 2 example" do
+    assert last_winner_score(@example) == 1924
   end
 end
