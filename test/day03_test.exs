@@ -19,6 +19,10 @@ defmodule Day03Test do
   ]
 
   test "part1 example" do
-    assert decode(@example) == 198
+    assert decode_power(@example) == 198
+  end
+
+  test "part2 example" do
+    assert decode_life_support(@example) == 230
   end
 end
