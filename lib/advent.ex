@@ -18,6 +18,9 @@ defmodule Advent do
     |> Stream.map(&String.trim/1)
   end
 
+  @doc """
+  Report the number of milliseconds it takes to execute the given function
+  """
   def measure(fun) do
     start = Time.utc_now()
     result = fun.()
