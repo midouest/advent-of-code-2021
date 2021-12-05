@@ -8,13 +8,12 @@ defmodule Advent.Day05 do
 
   def part2() do
     load_puzzle()
-    |> count_all_overlap()
+    |> count_overlap()
   end
 
   def count_straight_overlap(lines), do: count_overlap(lines, &straight?/1)
-  def count_all_overlap(lines), do: count_overlap(lines, &Function.identity/1)
 
-  def count_overlap(lines, fun) do
+  def count_overlap(lines, fun \\ &Function.identity/1) do
     lines
     |> Stream.map(&parse/1)
     |> Stream.filter(fun)
@@ -60,17 +59,5 @@ defmodule Advent.Day05 do
     |> Enum.reduce(map, &mark_coord/2)
   end
 
-  def mark_coord(coord, map) do
-    map
-    |> Map.get_and_update(coord, &increment/1)
-    |> elem(1)
-  end
-
-  def increment(count) do
-    if count == nil do
-      {count, 1}
-    else
-      {count, count + 1}
-    end
-  end
+  def mark_coord(coord, map), do: Map.update(map, coord, 1, &(&1 + 1))
 end

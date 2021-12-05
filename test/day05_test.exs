@@ -21,6 +21,6 @@ defmodule Day05Test do
   end
 
   test "part 2 example" do
-    assert count_all_overlap(@example) == 12
+    assert count_overlap(@example) == 12
   end
 end
