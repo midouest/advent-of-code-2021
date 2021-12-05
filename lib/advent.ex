@@ -50,8 +50,8 @@ defmodule Advent do
 
   def check_help(["help"]) do
     IO.puts("./advent               # Solve all days")
-    IO.puts("./advent <day>         # Solve only the given day")
-    IO.puts("./advent <day> <part>  # Solve only the given day and part")
+    IO.puts("./advent <day>         # Solve only the given day (1-25)")
+    IO.puts("./advent <day> <part>  # Solve only the given day and part (1-2)")
     IO.puts("")
     :halt
   end

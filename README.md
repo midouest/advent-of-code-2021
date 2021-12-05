@@ -47,8 +47,8 @@ Generated escript advent with MIX_ENV=dev
 
 $ ./advent help
 ./advent               # Solve all days
-./advent <day>         # Solve only the given day
-./advent <day> <part>  # Solve only the given day and part
+./advent <day>         # Solve only the given day (1-25)
+./advent <day> <part>  # Solve only the given day and part (1-2)
 
 $ ./advent 1
 Day 01
