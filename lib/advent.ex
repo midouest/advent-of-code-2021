@@ -26,7 +26,34 @@ defmodule Advent do
     result = fun.()
     dt = Time.diff(Time.utc_now(), start, :microsecond)
     ms = dt / 1000
-    IO.puts(~s"#{ms} ms")
-    result
+    {result, ms}
+  end
+
+  @puzzles [
+    Advent.Day01,
+    Advent.Day02,
+    Advent.Day03,
+    Advent.Day04,
+    Advent.Day05
+  ]
+
+  def main(_args \\ []) do
+    @puzzles
+    |> Stream.with_index()
+    |> Enum.each(&exec/1)
+  end
+
+  def exec({module, index}) do
+    day =
+      (index + 1)
+      |> Integer.to_string()
+      |> String.pad_leading(2, "0")
+
+    IO.puts(~s"Day #{day}")
+    IO.puts("------")
+    {result, ms} = measure(&module.part1/0)
+    IO.puts(~s"Part 1 = #{result} (#{ms} ms)")
+    {result, ms} = measure(&module.part2/0)
+    IO.puts(~s"Part 2 = #{result} (#{ms} ms)\n")
   end
 end

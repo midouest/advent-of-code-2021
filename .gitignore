@@ -27,3 +27,6 @@ advent-*.tar
 
 # Elixir Language Server output
 /.elixir_ls
+
+# Binary output
+/advent
