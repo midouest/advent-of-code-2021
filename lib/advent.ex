@@ -17,4 +17,13 @@ defmodule Advent do
     |> IO.stream(:line)
     |> Stream.map(&String.trim/1)
   end
+
+  def measure(fun) do
+    start = Time.utc_now()
+    result = fun.()
+    dt = Time.diff(Time.utc_now(), start, :microsecond)
+    ms = dt / 1000
+    IO.puts(~s"#{ms} ms")
+    result
+  end
 end
