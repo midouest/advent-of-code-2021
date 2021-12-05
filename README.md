@@ -36,6 +36,17 @@ Solutions to [Advent of Code 2021](https://adventofcode.com/2021) in Elixir
 
 ## Usage
 
+### Compile
+
+```shell
+$ mix escript.build
+$ ./advent
+Day 01
+------
+Part 1 = 1266 (7.944 ms)
+Part 2 = 1217 (4.207 ms)
+```
+
 ### Interactive
 
 ```shell
