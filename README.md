@@ -28,7 +28,7 @@ Solutions to [Advent of Code 2021](https://adventofcode.com/2021) in Elixir
 
 **Required**
 
-- [Elixir](https://elixir-lang.org)
+- [Elixir](https://elixir-lang.org) (1.13+)
 
 **Recommended**
 
@@ -36,11 +36,21 @@ Solutions to [Advent of Code 2021](https://adventofcode.com/2021) in Elixir
 
 ## Usage
 
-### Compile
+### Compiled
+
+Use the `escript.build` task to compile the `advent` executable.
 
 ```shell
 $ mix escript.build
-$ ./advent
+Compiling 1 file (.ex)
+Generated escript advent with MIX_ENV=dev
+
+$ ./advent help
+./advent               # Solve all days
+./advent <day>         # Solve only the given day
+./advent <day> <part>  # Solve only the given day and part
+
+$ ./advent 1
 Day 01
 ------
 Part 1 = 1266 (7.944 ms)
@@ -48,6 +58,8 @@ Part 2 = 1217 (4.207 ms)
 ```
 
 ### Interactive
+
+Puzzles can be solved interactively using Elixir's interactive shell, `IEx`:
 
 ```shell
 $ iex -S mix
@@ -65,7 +77,7 @@ Compiling 1 file (.ex)
 
 ### Run Tests
 
-Run tests on the example data sets given in the puzzles.
+Run tests on the example data sets given in the puzzles using the `test` task:
 
 ```shell
 $ mix test
