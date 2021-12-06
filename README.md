@@ -1,6 +1,6 @@
 # Advent
 
-Solutions to [Advent of Code 2021](https://adventofcode.com/2021) in Elixir
+Solutions to [Advent of Code 2021](https://adventofcode.com/2021) in [Elixir](https://elixir-lang.org) (1.13+)
 
 ## Project Structure
 
@@ -27,16 +27,6 @@ Solutions to [Advent of Code 2021](https://adventofcode.com/2021) in Elixir
 └── test
     └── dayXX_test.exs  # Puzzle example unit tests
 ```
-
-## Dependencies
-
-**Required**
-
-- [Elixir](https://elixir-lang.org) (1.13+)
-
-**Recommended**
-
-- [Visual Studio Code](https://code.visualstudio.com)
 
 ## Usage
 
