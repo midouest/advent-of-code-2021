@@ -102,5 +102,6 @@ $ mix advent.gen
 * creating blog/day06.md
 * creating data/day06.txt
 * creating lib/day06.ex
+* creating lib/puzzles.ex
 * creating test/day06_test.exs
 ```
