@@ -25,6 +25,6 @@ defmodule Advent.MixProject do
   end
 
   defp escript do
-    [main_module: Advent]
+    [main_module: Advent.CLI]
   end
 end
