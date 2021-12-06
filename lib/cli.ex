@@ -1,17 +1,9 @@
 defmodule Advent.CLI do
-  @puzzles [
-    Advent.Day01,
-    Advent.Day02,
-    Advent.Day03,
-    Advent.Day04,
-    Advent.Day05
-  ]
-
   def main(args \\ []) do
     if check_help(args) == :cont do
       {day, part} = parse_args(args)
 
-      @puzzles
+      Advent.Puzzles.all()
       |> Stream.with_index()
       |> filter_day(day)
       |> Enum.each(&solve(&1, part))

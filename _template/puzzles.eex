@@ -1,0 +1,7 @@
+defmodule Advent.Puzzles do
+  @puzzles [<%= for module <- @modules do %>
+    <%= module %><% end %>
+  ]
+
+  def all, do: @puzzles
+end

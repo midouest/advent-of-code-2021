@@ -6,22 +6,26 @@ Solutions to [Advent of Code 2021](https://adventofcode.com/2021) in Elixir
 
 ```
 .
+├── _template  # Generator task templates
+│
 ├── blog
-│   ├── dayXX.md  # Solution postmortem
-│   │   ...
+│   └── dayXX.md  # Solution postmortem
 │
 ├── data
-│   ├── dayXX.txt  # Puzzle input
-│   │   ...
+│   └── dayXX.txt  # Puzzle input
 │
 ├── lib
-│   ├── advent.ex  # Prelude module with common code
-│   ├── dayXX.ex   # Puzzle solution
-│   │   ...
+│   ├── mix
+│   │   └── tasks
+│   │       └── advent.gen.ex  # Custom generator task
+│   │
+│   ├── advent.ex   # Prelude module with common code
+│   ├── cli.ex      # Executable entrypoint
+│   ├── dayXX.ex    # Puzzle solution
+│   └── puzzles.ex  # Auto-generated list of solution modules
 │
 └── test
-    ├── dayXX_test.exs  # Puzzle example unit tests
-    │   ...
+    └── dayXX_test.exs  # Puzzle example unit tests
 ```
 
 ## Dependencies

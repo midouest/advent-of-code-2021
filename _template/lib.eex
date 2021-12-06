@@ -4,4 +4,8 @@ defmodule Advent.Day<%= @day %> do
   def part1() do
     load_puzzle()
   end
+
+  def part2() do
+    load_puzzle()
+  end
 end

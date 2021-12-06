@@ -42,11 +42,7 @@ defmodule Mix.Tasks.Advent.Gen do
   end
 
   def generate(day) do
-    padded_day =
-      day
-      |> Integer.to_string()
-      |> String.pad_leading(2, "0")
-
+    padded_day = pad_day(day)
     base = "day" <> padded_day
 
     blog = Path.join("blog", base <> ".md")
@@ -60,8 +56,27 @@ defmodule Mix.Tasks.Advent.Gen do
     lib_template = Path.join("_template", "lib.eex")
     Generator.copy_template(lib_template, lib, day: padded_day)
 
+    puzzles = Path.join("lib", "puzzles.ex")
+    puzzles_template = Path.join("_template", "puzzles.eex")
+
+    modules =
+      1..(day - 1)
+      |> Stream.map(&format_module/1)
+      |> Enum.map(&(&1 <> ","))
+
+    modules = modules ++ [format_module(day)]
+    Generator.copy_template(puzzles_template, puzzles, [modules: modules], force: true)
+
     test = Path.join("test", base <> "_test.exs")
     test_template = Path.join("_template", "test.eex")
     Generator.copy_template(test_template, test, day: padded_day)
   end
+
+  def pad_day(day) do
+    day
+    |> Integer.to_string()
+    |> String.pad_leading(2, "0")
+  end
+
+  def format_module(day), do: ~s"Advent.Day#{pad_day(day)}"
 end
