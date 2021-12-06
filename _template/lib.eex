@@ -1,0 +1,7 @@
+defmodule Advent.Day<%= @day %> do
+  def load_puzzle(), do: Advent.read("data/day<%= @day %>.txt")
+
+  def part1() do
+    load_puzzle()
+  end
+end

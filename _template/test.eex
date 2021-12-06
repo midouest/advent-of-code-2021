@@ -1,0 +1,8 @@
+defmodule Day<%= @day %>Test do
+  use ExUnit.Case
+
+  @example []
+
+  test "part 1 example" do
+  end
+end
