@@ -42,8 +42,8 @@ defmodule Mix.Tasks.Advent.Gen do
   end
 
   def generate(day) do
-    padded_day = pad_day(day)
-    base = "day" <> padded_day
+    padded = Advent.pad_day(day)
+    base = "day" <> padded
 
     blog = Path.join("blog", base <> ".md")
     blog_template = Path.join("_template", "blog.eex")
@@ -54,7 +54,7 @@ defmodule Mix.Tasks.Advent.Gen do
 
     lib = Path.join("lib", base <> ".ex")
     lib_template = Path.join("_template", "lib.eex")
-    Generator.copy_template(lib_template, lib, day: padded_day)
+    Generator.copy_template(lib_template, lib, day: padded)
 
     puzzles = Path.join("lib", "puzzles.ex")
     puzzles_template = Path.join("_template", "puzzles.eex")
@@ -69,14 +69,11 @@ defmodule Mix.Tasks.Advent.Gen do
 
     test = Path.join("test", base <> "_test.exs")
     test_template = Path.join("_template", "test.eex")
-    Generator.copy_template(test_template, test, day: padded_day)
+    Generator.copy_template(test_template, test, day: padded)
   end
 
-  def pad_day(day) do
-    day
-    |> Integer.to_string()
-    |> String.pad_leading(2, "0")
+  def format_module(day) do
+    padded = Advent.pad_day(day)
+    ~s"Advent.Day#{padded}"
   end
-
-  def format_module(day), do: ~s"Advent.Day#{pad_day(day)}"
 end

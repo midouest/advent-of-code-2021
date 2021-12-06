@@ -28,4 +28,10 @@ defmodule Advent do
     ms = dt / 1000
     {result, ms}
   end
+
+  def pad_day(day) do
+    day
+    |> Integer.to_string()
+    |> String.pad_leading(2, "0")
+  end
 end

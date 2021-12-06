@@ -40,10 +40,7 @@ defmodule Advent.CLI do
   end
 
   def solve({module, index}, part) do
-    day =
-      (index + 1)
-      |> Integer.to_string()
-      |> String.pad_leading(2, "0")
+    day = Advent.pad_day(index + 1)
 
     IO.puts(~s"Day #{day}")
     IO.puts("------")
