@@ -88,3 +88,15 @@ Finished in 0.05 seconds (0.00s async, 0.05s sync)
 
 Randomized with seed 16181
 ```
+
+### Generate
+
+Generate files for each day using `mix advent.gen`:
+
+```shell
+$ mix advent.gen
+* creating blog/day06.md
+* creating data/day06.txt
+* creating lib/day06.ex
+* creating test/day06_test.exs
+```
