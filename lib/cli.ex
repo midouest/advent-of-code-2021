@@ -1,24 +1,25 @@
 defmodule Advent.CLI do
   def main(args \\ []) do
-    if check_help(args) == :cont do
-      {day, part} = parse_args(args)
+    {day, part} =
+      args
+      |> print_help()
+      |> parse_args()
 
-      Advent.Puzzles.all()
-      |> Stream.with_index()
-      |> filter_day(day)
-      |> Enum.each(&solve(&1, part))
-    end
+    Advent.Puzzles.all()
+    |> Stream.with_index()
+    |> filter_day(day)
+    |> Enum.each(&solve(&1, part))
   end
 
-  def check_help(["help"]) do
+  def print_help(["help"]) do
     IO.puts("./advent               # Solve all days")
     IO.puts("./advent <day>         # Solve only the given day (1-25)")
     IO.puts("./advent <day> <part>  # Solve only the given day and part (1-2)")
     IO.puts("")
-    :halt
+    System.halt()
   end
 
-  def check_help(_), do: :cont
+  def print_help(args), do: args
 
   def parse_args(args) do
     args
