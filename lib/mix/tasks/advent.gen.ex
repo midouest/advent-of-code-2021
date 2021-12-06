@@ -45,31 +45,28 @@ defmodule Mix.Tasks.Advent.Gen do
     padded = Advent.pad_day(day)
     base = "day" <> padded
 
-    blog = Path.join("blog", base <> ".md")
-    blog_template = Path.join("_template", "blog.eex")
-    Generator.copy_template(blog_template, blog, day: day)
+    copy_template("blog", base <> ".md", day: day)
 
-    data = Path.join("data", base <> ".txt")
-    Generator.create_file(data, "")
+    Path.join("data", base <> ".txt")
+    |> Generator.create_file("")
 
-    lib = Path.join("lib", base <> ".ex")
-    lib_template = Path.join("_template", "lib.eex")
-    Generator.copy_template(lib_template, lib, day: padded)
-
-    puzzles = Path.join("lib", "puzzles.ex")
-    puzzles_template = Path.join("_template", "puzzles.eex")
+    copy_template("lib", base <> ".ex", day: padded)
 
     modules =
       1..(day - 1)
-      |> Stream.map(&format_module/1)
-      |> Enum.map(&(&1 <> ","))
+      |> Stream.map(&(format_module(&1) <> ","))
+      |> Enum.concat([format_module(day)])
 
-    modules = modules ++ [format_module(day)]
-    Generator.copy_template(puzzles_template, puzzles, [modules: modules], force: true)
+    copy_template("puzzles", "lib", "puzzles.ex", [modules: modules], force: true)
 
-    test = Path.join("test", base <> "_test.exs")
-    test_template = Path.join("_template", "test.eex")
-    Generator.copy_template(test_template, test, day: padded)
+    copy_template("test", base <> "_test.exs", day: padded)
+  end
+
+  def copy_template(src, dest_dir \\ nil, dest, assigns, options \\ []) do
+    dest_dir = if dest_dir == nil, do: src, else: dest_dir
+    src_path = Path.join("_template", src <> ".eex")
+    dest_path = Path.join(dest_dir, dest)
+    Generator.copy_template(src_path, dest_path, assigns, options)
   end
 
   def format_module(day) do
