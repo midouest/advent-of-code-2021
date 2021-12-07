@@ -30,3 +30,6 @@ advent-*.tar
 
 # Binary output
 /advent
+
+# Log dumps
+*.log
