@@ -3,6 +3,7 @@ defmodule Advent.Day08 do
 
   def part1() do
     load_puzzle()
+    |> count_all_1478()
   end
 
   def part2() do
@@ -53,33 +54,27 @@ defmodule Advent.Day08 do
       end)
       |> List.to_tuple()
 
-    signals = Enum.sort(signals, &(MapSet.size(&1) <= MapSet.size(&2)))
+    signals = Enum.group_by(signals, &MapSet.size/1)
 
     {signals, output}
   end
 
-  def map_signals([one | [seven | [four | rest]]]) do
-    {unknown, [eight]} = Enum.split(rest, 6)
-    %{5 => five_segments, 6 => six_segments} = Enum.group_by(unknown, &MapSet.size/1)
-
+  def map_signals(%{
+        2 => [one],
+        3 => [seven],
+        4 => [four],
+        5 => five_segments,
+        6 => six_segments,
+        7 => [eight]
+      }) do
     {[three], five_segments} = Enum.split_with(five_segments, &contains_one?(&1, one))
     {[six], six_segments} = Enum.split_with(six_segments, &six?(&1, one))
-
     {[zero], [nine]} = Enum.split_with(six_segments, &zero?(&1, four))
     {[five], [two]} = Enum.split_with(five_segments, &five?(&1, six))
 
-    %{
-      zero => 0,
-      one => 1,
-      two => 2,
-      three => 3,
-      four => 4,
-      five => 5,
-      six => 6,
-      seven => 7,
-      eight => 8,
-      nine => 9
-    }
+    [zero, one, two, three, four, five, six, seven, eight, nine]
+    |> Enum.with_index()
+    |> Map.new()
   end
 
   defp intersection_size_equals?(set, other, len) do
