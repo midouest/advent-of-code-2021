@@ -27,4 +27,8 @@ defmodule Day08Test do
   test "part 1 large example" do
     assert count_all_1478(@large_example) == 26
   end
+
+  test "part 2 small example" do
+    assert sum_decoded(@small_example) == 5353
+  end
 end
