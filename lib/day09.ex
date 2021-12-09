@@ -40,13 +40,10 @@ defmodule Advent.Day09 do
     frontier = [coord]
     basin = MapSet.new(frontier)
 
-    Stream.iterate(0, &(&1 + 1))
-    |> Enum.reduce_while({frontier, basin}, fn _, {frontier, basin} ->
-      expand_basin(frontier, basin, grid)
-    end)
+    expand_basin(frontier, basin, grid)
   end
 
-  defp expand_basin([], basin, _), do: {:halt, basin}
+  defp expand_basin([], basin, _), do: basin
 
   defp expand_basin([coord | frontier], basin, grid) do
     neighbors =
@@ -58,14 +55,17 @@ defmodule Advent.Day09 do
     frontier = frontier ++ neighbors
     basin = MapSet.union(basin, MapSet.new(neighbors))
 
-    {:cont, {frontier, basin}}
+    expand_basin(frontier, basin, grid)
   end
 
   defp local_min(grid) do
     grid
     |> Grid.coords()
     |> Enum.reduce([], fn {coord, height}, minima ->
-      min = min_neighbors(coord, grid)
+      min =
+        Grid.neighbors(grid, coord)
+        |> Enum.map(&Grid.fetch!(grid, &1))
+        |> Enum.reduce(nil, &min(&1, &2))
 
       if height < min do
         [{coord, height} | minima]
@@ -73,16 +73,6 @@ defmodule Advent.Day09 do
         minima
       end
     end)
-  end
-
-  defp min_neighbors(coord, grid) do
-    neighbor_heights(coord, grid)
-    |> Enum.reduce(nil, &min(&1, &2))
-  end
-
-  defp neighbor_heights(coord, grid) do
-    Grid.neighbors(grid, coord)
-    |> Enum.map(&Grid.fetch!(grid, &1))
   end
 end
 
