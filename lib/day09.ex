@@ -28,43 +28,27 @@ defmodule Advent.Day09 do
 
   def risk_level(lines) do
     map = parse(lines)
-    {minima, _} = local_min_max(map)
 
-    Stream.map(minima, &(&1 + 1))
+    local_min(map)
+    |> Stream.map(&(&1 + 1))
     |> Enum.sum()
   end
 
-  defp local_min_max(map) do
-    Enum.reduce(map, {[], []}, fn {coord, height}, {minima, maxima} ->
-      {min, max} = min_max_neighbors(coord, map)
+  defp local_min(map) do
+    Enum.reduce(map, [], fn {coord, height}, minima ->
+      min = min_neighbors(coord, map)
 
-      cond do
-        height < min ->
-          {[height | minima], maxima}
-
-        height > max ->
-          {minima, [height | maxima]}
-
-        true ->
-          {minima, maxima}
+      if height < min do
+        [height | minima]
+      else
+        minima
       end
     end)
   end
 
-  defp min_max_neighbors(coord, map) do
+  defp min_neighbors(coord, map) do
     neighbors(coord, map)
-    |> Enum.reduce({nil, nil}, fn height, {min, max} ->
-      cond do
-        height < min ->
-          {height, max}
-
-        height > max ->
-          {min, height}
-
-        true ->
-          {min, max}
-      end
-    end)
+    |> Enum.reduce(nil, &min(&1, &2))
   end
 
   defp neighbors(coord, map) do
