@@ -14,4 +14,8 @@ defmodule Day09Test do
   test "part 1 example" do
     assert risk_level(@example) == 15
   end
+
+  test "part 2 example" do
+    assert basin_product(@example) == 1134
+  end
 end
