@@ -1,6 +1,8 @@
 defmodule Day<%= @day %>Test do
   use ExUnit.Case
 
+  import Advent.Day<%= @day %>
+
   @example []
 
   test "part 1 example" do
