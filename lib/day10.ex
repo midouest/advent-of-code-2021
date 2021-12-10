@@ -8,6 +8,7 @@ defmodule Advent.Day10 do
 
   def part2() do
     load_puzzle()
+    |> autocomplete_score()
   end
 
   def syntax_error_score(lines) do
@@ -18,7 +19,20 @@ defmodule Advent.Day10 do
     |> Enum.sum()
   end
 
-  def close_braces([], _), do: {:incomplete, 0}
+  def autocomplete_score(lines) do
+    scores =
+      lines
+      |> Stream.map(&(String.graphemes(&1) |> close_braces([])))
+      |> Stream.filter(&(elem(&1, 0) == :incomplete))
+      |> Stream.map(&elem(&1, 1))
+      |> Enum.sort()
+
+    {_, [score | _]} = Enum.split(scores, div(length(scores), 2))
+    score
+  end
+
+  def close_braces([], incomplete), do: {:incomplete, total_incomplete_score(incomplete, 0)}
+
   def close_braces([char | line], []), do: close_braces(line, [close(char)])
 
   def close_braces([char | line], [close_char | rest] = expected) do
@@ -30,7 +44,7 @@ defmodule Advent.Day10 do
         close_braces(line, rest)
 
       true ->
-        {:corrupted, score(char)}
+        {:corrupted, corrupted_score(char)}
     end
   end
 
@@ -45,8 +59,20 @@ defmodule Advent.Day10 do
   def close("{"), do: "}"
   def close("<"), do: ">"
 
-  def score(")"), do: 3
-  def score("]"), do: 57
-  def score("}"), do: 1197
-  def score(">"), do: 25137
+  def corrupted_score(")"), do: 3
+  def corrupted_score("]"), do: 57
+  def corrupted_score("}"), do: 1197
+  def corrupted_score(">"), do: 25137
+
+  def total_incomplete_score([], total), do: total
+
+  def total_incomplete_score([char | rest], total) do
+    total = total * 5 + incomplete_score(char)
+    total_incomplete_score(rest, total)
+  end
+
+  def incomplete_score(")"), do: 1
+  def incomplete_score("]"), do: 2
+  def incomplete_score("}"), do: 3
+  def incomplete_score(">"), do: 4
 end
