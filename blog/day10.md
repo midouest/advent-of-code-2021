@@ -2,7 +2,7 @@
 
 ## Part 1
 
-Today's problem was the classic "balance parenthesis" problem with some small twists.
+Today's problem was the classic "balancing parentheses" problem with some small twists.
 
 My approach was to use a recursive function that received the list of characters to be processed and a list of characters that were _expected_ to be processed. The function examined each input character and proceeded based on the following logic:
 
