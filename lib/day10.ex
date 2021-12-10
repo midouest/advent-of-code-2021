@@ -12,12 +12,13 @@ defmodule Advent.Day10 do
 
   def syntax_error_score(lines) do
     lines
-    |> Enum.map(&(String.graphemes(&1) |> close_braces([])))
-    |> Enum.filter(&(&1 != nil))
+    |> Stream.map(&(String.graphemes(&1) |> close_braces([])))
+    |> Stream.filter(&(elem(&1, 0) == :corrupted))
+    |> Stream.map(&elem(&1, 1))
     |> Enum.sum()
   end
 
-  def close_braces([], _), do: nil
+  def close_braces([], _), do: {:incomplete, 0}
   def close_braces([char | line], []), do: close_braces(line, [close(char)])
 
   def close_braces([char | line], [close_char | rest] = expected) do
@@ -29,7 +30,7 @@ defmodule Advent.Day10 do
         close_braces(line, rest)
 
       true ->
-        score(char)
+        {:corrupted, score(char)}
     end
   end
 
