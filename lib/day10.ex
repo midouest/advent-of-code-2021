@@ -13,22 +13,24 @@ defmodule Advent.Day10 do
 
   def syntax_error_score(lines) do
     lines
-    |> Stream.map(&(String.graphemes(&1) |> close_braces([])))
-    |> Stream.filter(&(elem(&1, 0) == :corrupted))
-    |> Stream.map(&elem(&1, 1))
+    |> filter_scores(:corrupted)
     |> Enum.sum()
   end
 
   def autocomplete_score(lines) do
     scores =
       lines
-      |> Stream.map(&(String.graphemes(&1) |> close_braces([])))
-      |> Stream.filter(&(elem(&1, 0) == :incomplete))
-      |> Stream.map(&elem(&1, 1))
+      |> filter_scores(:incomplete)
       |> Enum.sort()
 
-    {_, [score | _]} = Enum.split(scores, div(length(scores), 2))
-    score
+    Enum.at(scores, div(length(scores), 2))
+  end
+
+  def filter_scores(lines, type) do
+    lines
+    |> Stream.map(&(String.graphemes(&1) |> close_braces([])))
+    |> Stream.filter(&(elem(&1, 0) == type))
+    |> Stream.map(&elem(&1, 1))
   end
 
   def close_braces([], incomplete), do: {:incomplete, total_incomplete_score(incomplete, 0)}
