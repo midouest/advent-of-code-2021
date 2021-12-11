@@ -100,5 +100,14 @@ $ mix advent.gen
 ```
 
 The `mix advent.gen` task can automatically fetch the puzzle input for the
-next day. The `:token` environment variable in `config/config.exs` must be set
-to a valid Advent of Code session token.
+next day. Create `config/secret.exs` with the following content:
+
+```elixir
+import Config
+
+config :advent,
+  token: ""
+```
+
+The `:token` environment variable must be set to a valid Advent of Code session
+token.

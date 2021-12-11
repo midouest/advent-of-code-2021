@@ -33,3 +33,6 @@ advent-*.tar
 
 # Log dumps
 *.log
+
+# Config secrets
+/config/secret.exs
