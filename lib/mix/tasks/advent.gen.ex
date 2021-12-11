@@ -30,6 +30,8 @@ defmodule Mix.Tasks.Advent.Gen do
 
   @impl Mix.Task
   def run(_args) do
+    Application.ensure_all_started(:mojito)
+
     File.ls!("lib")
     |> Stream.filter(&String.starts_with?(&1, "day"))
     |> Enum.to_list()
@@ -47,8 +49,22 @@ defmodule Mix.Tasks.Advent.Gen do
 
     copy_template("blog", base <> ".md", day: day)
 
+    token = System.get_env("AOC_SESSION_TOKEN")
+
+    content =
+      if token != nil do
+        {:ok, response} =
+          Mojito.get(~s"https://adventofcode.com/2021/day/#{day}/input", [
+            {"Cookie", ~s"session=#{token}"}
+          ])
+
+        String.trim(response.body)
+      else
+        ""
+      end
+
     Path.join("data", base <> ".txt")
-    |> Generator.create_file("")
+    |> Generator.create_file(content)
 
     copy_template("lib", base <> ".ex", day: padded)
 

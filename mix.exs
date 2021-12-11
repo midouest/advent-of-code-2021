@@ -21,7 +21,7 @@ defmodule Advent.MixProject do
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
-    []
+    [{:mojito, "~> 0.7.10"}]
   end
 
   defp escript do
