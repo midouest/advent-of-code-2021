@@ -19,4 +19,8 @@ defmodule Day11Test do
   test "part 1 example" do
     assert total_flashes(@example) == 1656
   end
+
+  test "part 2 example" do
+    assert first_sync_step(@example) == 195
+  end
 end

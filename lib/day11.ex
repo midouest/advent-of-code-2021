@@ -10,12 +10,29 @@ defmodule Advent.Day11 do
 
   def part2() do
     load_puzzle()
+    |> first_sync_step()
   end
 
   def total_flashes(lines) do
     lines
     |> Grid.parse()
     |> Grid.tick(100, 0)
+    |> elem(1)
+  end
+
+  def first_sync_step(lines) do
+    grid = Grid.parse(lines)
+
+    Stream.iterate(1, &(&1 + 1))
+    |> Enum.reduce_while(grid, fn i, grid ->
+      {grid, flashes} = Grid.tick(grid, 1, 0)
+
+      if flashes == Grid.area(grid) do
+        {:halt, i}
+      else
+        {:cont, grid}
+      end
+    end)
   end
 end
 
@@ -46,7 +63,7 @@ defmodule Advent.Day11.Grid do
     %Grid{map: map, size: {width, height}}
   end
 
-  def tick(_, 0, flashes), do: flashes
+  def tick(grid, 0, flashes), do: {grid, flashes}
 
   def tick(%Grid{map: map} = grid, iter, flashes) do
     {map, triggered} = Enum.reduce(map, {%{}, MapSet.new()}, &flash/2)
@@ -114,4 +131,6 @@ defmodule Advent.Day11.Grid do
       IO.write(output)
     end
   end
+
+  def area(%Grid{size: {width, height}}), do: width * height
 end
