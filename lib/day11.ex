@@ -120,17 +120,5 @@ defmodule Advent.Day11.Grid do
     end)
   end
 
-  def print(%Grid{map: map, size: {width, height}}) do
-    for row <- 0..(height - 1),
-        col <- 0..(width - 1) do
-      output =
-        Map.get(map, {row, col})
-        |> Integer.to_string()
-
-      output = if col == width - 1, do: output <> "\n", else: output
-      IO.write(output)
-    end
-  end
-
   def area(%Grid{size: {width, height}}), do: width * height
 end
