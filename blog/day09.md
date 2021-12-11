@@ -2,15 +2,57 @@
 
 ## Part 1
 
-Ideas
+I computed the local minima by iterating over every cell in the grid and filtering out the ones that were not smaller than all their neighbors.
 
-- A point is a low or high point if it is lower or higher than all adjacent neighbors
-- Naive
-  - One pass to load all coordinates into grid (map)
-  - For each coordinate, check all 4 neighbors for lowest and highest
-- Other solutions
-  - Algorithm for finding local max and min in a 2d grid?
+```elixir
+defp local_min(grid) do
+  grid
+  |> Grid.coords()
+  |> Enum.reduce([], fn {coord, height}, minima ->
+    min =
+      Grid.neighbors(grid, coord)
+      |> Enum.map(&Grid.fetch!(grid, &1))
+      |> Enum.reduce(nil, &min(&1, &2))
+
+    if height < min do
+      [{coord, height} | minima]
+    else
+      minima
+    end
+  end)
+end
+```
+
+In hindsight, I could have implemented this with `Enum.filter` instead of `Enum.reduce`. I only returned the height of the local minima for my initial part 1 solution, but I modified it to return both the coordinate and height to make it reusable for part 2.
 
 ## Part 2
 
-Flood fill from local minima
+I used a flood-fill algorithm to solve part 2. Starting from each local minimum calculated in part 1, I created an initial basin set using the minimum coordinate.
+
+```elixir
+defp find_basin(coord, grid) do
+  frontier = [coord]
+  basin = MapSet.new(frontier)
+
+  expand_basin(frontier, basin, grid)
+end
+```
+
+I then wrote a recursive function to expand the basin by all neighbors of the cells in the frontier. I filtered out neighbors that were already in the basin or whose height was equal to `9`.
+
+```elixir
+defp expand_basin([], basin, _), do: basin
+
+defp expand_basin([coord | frontier], basin, grid) do
+  neighbors =
+    Grid.neighbors(grid, coord)
+    |> Enum.filter(fn coord ->
+      not MapSet.member?(basin, coord) and Grid.fetch!(grid, coord) != 9
+    end)
+
+  frontier = frontier ++ neighbors
+  basin = MapSet.union(basin, MapSet.new(neighbors))
+
+  expand_basin(frontier, basin, grid)
+end
+```
