@@ -16,7 +16,7 @@ defmodule Advent.Day11 do
   def total_flashes(lines) do
     lines
     |> Grid.parse()
-    |> Grid.tick(100, 0)
+    |> Grid.step(100, 0)
     |> elem(1)
   end
 
@@ -25,7 +25,7 @@ defmodule Advent.Day11 do
 
     Stream.iterate(1, &(&1 + 1))
     |> Enum.reduce_while(grid, fn i, grid ->
-      {grid, flashes} = Grid.tick(grid, 1, 0)
+      {grid, flashes} = Grid.step(grid, 1, 0)
 
       if flashes == Grid.area(grid) do
         {:halt, i}
@@ -63,15 +63,15 @@ defmodule Advent.Day11.Grid do
     %Grid{map: map, size: {width, height}}
   end
 
-  def tick(grid, 0, flashes), do: {grid, flashes}
+  def step(grid, 0, flashes), do: {grid, flashes}
 
-  def tick(%Grid{map: map} = grid, iter, flashes) do
-    {map, triggered} = Enum.reduce(map, {%{}, MapSet.new()}, &flash/2)
-    {grid, flashes} = resolve(%Grid{grid | map: map}, MapSet.to_list(triggered), flashes)
-    tick(grid, iter - 1, flashes)
+  def step(%Grid{map: map} = grid, iter, flashes) do
+    {map, triggered} = Enum.reduce(map, {%{}, MapSet.new()}, &increase_energy/2)
+    {grid, flashes} = flash(%Grid{grid | map: map}, MapSet.to_list(triggered), flashes)
+    step(grid, iter - 1, flashes)
   end
 
-  def flash({coord, value}, {map, triggered}) do
+  def increase_energy({coord, value}, {map, triggered}) do
     next_value = value + 1
     map = Map.put(map, coord, next_value)
 
@@ -85,9 +85,9 @@ defmodule Advent.Day11.Grid do
     {map, triggered}
   end
 
-  def resolve(grid, [], flashes), do: {grid, flashes}
+  def flash(grid, [], flashes), do: {grid, flashes}
 
-  def resolve(%Grid{map: map} = grid, frontier, flashes) do
+  def flash(%Grid{map: map} = grid, frontier, flashes) do
     prev_frontier = MapSet.new(frontier)
 
     {map, frontier, flashes} =
@@ -101,12 +101,12 @@ defmodule Advent.Day11.Grid do
           |> Enum.reject(fn {coord, value} ->
             MapSet.member?(prev_frontier, coord) or value == 0
           end)
-          |> Enum.reduce({map, next_frontier}, &flash/2)
+          |> Enum.reduce({map, next_frontier}, &increase_energy/2)
 
         {map, next_frontier, flashes + 1}
       end)
 
-    resolve(%Grid{grid | map: map}, MapSet.to_list(frontier), flashes)
+    flash(%Grid{grid | map: map}, MapSet.to_list(frontier), flashes)
   end
 
   def neighbors(%Grid{size: {width, height}}, {row, col}) do
