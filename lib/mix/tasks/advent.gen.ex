@@ -20,6 +20,12 @@ defmodule Mix.Tasks.Advent.Gen do
   If no days have been generated yet, the first day will be `01`. Subsequent
   calls to `mix advent.gen` will increment the previous day. For example, if
   day `01` has been generated, then the next day will be day `02`.
+
+  ## Puzzle Input
+
+  The `mix advent.gen` task can automatically fetch the puzzle input for the
+  next day. The `:token` environment variable in `config/config.exs` must be set
+  to a valid Advent of Code session token.
   """
 
   @shortdoc "Generate Advent of Code files"
@@ -30,8 +36,6 @@ defmodule Mix.Tasks.Advent.Gen do
 
   @impl Mix.Task
   def run(_args) do
-    Application.ensure_all_started(:mojito)
-
     File.ls!("lib")
     |> Stream.filter(&String.starts_with?(&1, "day"))
     |> Enum.to_list()
@@ -49,10 +53,12 @@ defmodule Mix.Tasks.Advent.Gen do
 
     copy_template("blog", base <> ".md", day: day)
 
-    token = System.get_env("AOC_SESSION_TOKEN")
+    token = Application.get_env(:advent, :token)
 
     content =
       if token != nil do
+        Application.ensure_all_started(:mojito)
+
         {:ok, response} =
           Mojito.get(~s"https://adventofcode.com/2021/day/#{day}/input", [
             {"Cookie", ~s"session=#{token}"}

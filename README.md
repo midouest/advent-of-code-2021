@@ -35,6 +35,9 @@ Solutions to [Advent of Code 2021](https://adventofcode.com/2021) in [Elixir](ht
 Use the `escript.build` task to compile the `advent` executable.
 
 ```shell
+$ mix deps.get
+All dependencies are up to date
+
 $ mix escript.build
 Compiling 1 file (.ex)
 Generated escript advent with MIX_ENV=dev
@@ -95,3 +98,7 @@ $ mix advent.gen
 * creating lib/puzzles.ex
 * creating test/day06_test.exs
 ```
+
+The `mix advent.gen` task can automatically fetch the puzzle input for the
+next day. The `:token` environment variable in `config/config.exs` must be set
+to a valid Advent of Code session token.
