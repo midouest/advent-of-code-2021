@@ -10,11 +10,12 @@ defmodule Advent.Day12 do
 
   def part2() do
     load_puzzle()
+    |> count_paths(2)
   end
 
-  def count_paths(lines) do
+  def count_paths(lines, small_limit \\ 1) do
     parse(lines)
-    |> search([Path.new()], [])
+    |> search([Path.new()], [], small_limit)
     |> length()
   end
 
@@ -27,19 +28,19 @@ defmodule Advent.Day12 do
     end)
   end
 
-  def search(_, [], paths), do: paths
+  def search(_, [], paths, _), do: paths
 
-  def search(graph, frontier, paths) do
+  def search(graph, frontier, paths, small_limit) do
     {complete, next_frontier} =
-      Enum.flat_map(frontier, &expand(graph, &1))
+      Enum.flat_map(frontier, &expand(graph, &1, small_limit))
       |> Enum.split_with(&Path.complete?/1)
 
-    search(graph, next_frontier, paths ++ complete)
+    search(graph, next_frontier, paths ++ complete, small_limit)
   end
 
-  def expand(graph, path) do
+  def expand(graph, path, small_limit) do
     Map.get(graph, Path.last(path))
-    |> Enum.filter(&Path.visitable?(path, &1))
+    |> Enum.filter(&Path.visitable?(path, &1, small_limit))
     |> Enum.map(&Path.visit(path, &1))
   end
 end
@@ -50,14 +51,20 @@ defmodule Advent.Day12.Path do
   alias __MODULE__, as: Path
 
   def new() do
-    %Path{caves: ["start"], small: MapSet.new(["start"])}
+    %Path{caves: ["start"], small: %{"start" => 1}}
   end
 
-  def visitable?(%Path{small: small}, cave) do
-    if small?(cave) do
-      not MapSet.member?(small, cave)
-    else
-      true
+  def visitable?(%Path{small: small}, cave, small_limit) do
+    cond do
+      cave == "start" ->
+        false
+
+      small?(cave) ->
+        Map.get(small, cave, 0) == 0 or
+          Enum.find(small, nil, fn {_, count} -> count == small_limit end) == nil
+
+      true ->
+        true
     end
   end
 
@@ -67,7 +74,7 @@ defmodule Advent.Day12.Path do
 
   def visit(%Path{caves: caves, small: small}, cave) do
     caves = [cave | caves]
-    small = if small?(cave), do: MapSet.put(small, cave), else: small
+    small = if small?(cave), do: Map.update(small, cave, 1, &(&1 + 1)), else: small
     %Path{caves: caves, small: small}
   end
 

@@ -58,4 +58,16 @@ defmodule Day12Test do
   test "part 1 example 3" do
     assert count_paths(@example3) == 226
   end
+
+  test "part 2 example 1" do
+    assert count_paths(@example1, 2) == 36
+  end
+
+  test "part 2 example 2" do
+    assert count_paths(@example2, 2) == 103
+  end
+
+  test "part 2 example 3" do
+    assert count_paths(@example3, 2) == 3509
+  end
 end
