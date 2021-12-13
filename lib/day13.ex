@@ -59,7 +59,7 @@ defmodule Advent.Day13.Paper do
     coords =
       MapSet.to_list(coords)
       |> Enum.reduce(MapSet.new(), fn {x, y}, coords ->
-        x = if x < column, do: x, else: abs(x - 2 * column)
+        x = if x < column, do: x, else: 2 * column - x
         MapSet.put(coords, {x, y})
       end)
 
@@ -70,7 +70,7 @@ defmodule Advent.Day13.Paper do
     coords =
       MapSet.to_list(coords)
       |> Enum.reduce(MapSet.new(), fn {x, y}, coords ->
-        y = if y < row, do: y, else: abs(y - 2 * row)
+        y = if y < row, do: y, else: 2 * row - y
         MapSet.put(coords, {x, y})
       end)
 
