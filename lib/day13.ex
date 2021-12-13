@@ -84,7 +84,7 @@ defmodule Advent.Day13.Paper do
 
     Enum.each(0..(height - 1), fn y ->
       Enum.each(0..(width - 1), fn x ->
-        IO.write(if MapSet.member?(coords, {x, y}), do: "#", else: ".")
+        IO.write(if MapSet.member?(coords, {x, y}), do: "#", else: " ")
       end)
 
       IO.write("\n")
