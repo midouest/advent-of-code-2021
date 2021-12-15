@@ -3,57 +3,69 @@ defmodule Advent.Day14 do
 
   def part1() do
     load_puzzle()
-    |> most_least_difference()
+    |> most_least_difference(10)
   end
 
   def part2() do
     load_puzzle()
+    |> most_least_difference(40)
   end
 
-  def most_least_difference(lines) do
-    {template, rules} = parse(lines)
+  def most_least_difference(lines, steps) do
+    {chars, pairs, rules} = parse(lines)
 
-    [least | rest] =
-      process(template, rules, 10)
-      |> Enum.frequencies()
+    counts =
+      process(chars, pairs, rules, steps)
       |> Map.values()
       |> Enum.sort()
 
-    most = List.last(rest)
+    least = List.first(counts)
+    most = List.last(counts)
 
     most - least
   end
 
   def parse(lines) do
     [template | ["" | rules]] = lines
+    graphemes = String.graphemes(template)
+    chars = Enum.frequencies(graphemes)
 
-    template = String.graphemes(template)
+    pairs =
+      graphemes
+      |> Enum.chunk_every(2, 1, :discard)
+      |> Enum.reduce(%{}, fn pair, map ->
+        Map.update(map, Enum.join(pair), 1, &(&1 + 1))
+      end)
 
     rules =
       rules
-      |> Enum.map(fn rule -> String.split(rule, " -> ") |> List.to_tuple() end)
-      |> Enum.reduce(%{}, fn {pair, insert}, map ->
-        Map.put(map, String.graphemes(pair), insert)
+      |> Enum.map(fn rule -> String.split(rule, " -> ") end)
+      |> Enum.reduce(%{}, fn [pair, insert], map ->
+        [left, right] = String.graphemes(pair)
+        Map.put(map, pair, {insert, [left <> insert, insert <> right]})
       end)
 
-    {template, rules}
+    {chars, pairs, rules}
   end
 
-  def process(template, _, 0), do: template
-  def process(template, rules, n), do: process(step(template, rules), rules, n - 1)
+  def process(chars, _, _, 0), do: chars
 
-  def step(template, rules) do
-    template
-    |> Enum.chunk_every(2, 1)
-    |> Enum.reduce([], fn
-      [first], output ->
-        output ++ [first]
+  def process(chars, pairs, rules, n) do
+    {chars, pairs} = step(chars, pairs, rules)
+    process(chars, pairs, rules, n - 1)
+  end
 
-      [first | _] = pair, output ->
-        case Map.get(rules, pair) do
-          nil -> output ++ [first]
-          insert -> output ++ [first, insert]
-        end
+  def step(chars, pairs, rules) do
+    Enum.reduce(pairs, {chars, %{}}, fn {pair, count}, {chars, pairs} ->
+      {char, products} = Map.get(rules, pair)
+      chars = Map.update(chars, char, count, &(&1 + count))
+
+      pairs =
+        Enum.reduce(products, pairs, fn product, pairs ->
+          Map.update(pairs, product, count, &(&1 + count))
+        end)
+
+      {chars, pairs}
     end)
   end
 end

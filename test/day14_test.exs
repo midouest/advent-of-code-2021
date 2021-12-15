@@ -25,6 +25,10 @@ defmodule Day14Test do
   ]
 
   test "part 1 example" do
-    assert most_least_difference(@example) == 1588
+    assert most_least_difference(@example, 10) == 1588
+  end
+
+  test "part 2 example" do
+    assert most_least_difference(@example, 40) == 2_188_189_693_529
   end
 end
