@@ -27,9 +27,7 @@ defmodule Advent.Grid do
 
   def size(%Grid{width: width, height: height}), do: {width, height}
 
-  def cells(%Grid{cells: cells}), do: cells
-
-  def fetch!(%Grid{cells: cells}, coord), do: Map.fetch!(cells, coord)
+  def get(%Grid{cells: cells}, coord), do: Map.fetch!(cells, coord)
 
   def neighbors(%Grid{width: width, height: height}, {x, y} = coord) do
     coords = if y > 0, do: [up(coord)], else: []
@@ -42,4 +40,22 @@ defmodule Advent.Grid do
   defp down({x, y}), do: {x, y + 1}
   defp left({x, y}), do: {x - 1, y}
   defp right({x, y}), do: {x + 1, y}
+
+  def print(
+        %Grid{cells: cells, width: width, height: height},
+        fun \\ &Function.identity/1,
+        device \\ :stdio
+      ) do
+    IO.write(device, "\n")
+
+    Enum.each(0..(height - 1), fn y ->
+      Enum.each(0..(width - 1), fn x ->
+        IO.write(device, fun.(Map.fetch!(cells, {x, y})))
+      end)
+
+      IO.write(device, "\n")
+    end)
+
+    IO.write(device, "\n")
+  end
 end

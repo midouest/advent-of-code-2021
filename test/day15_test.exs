@@ -19,4 +19,8 @@ defmodule Day15Test do
   test "part 1 example" do
     assert lowest_risk_path(@example) == 40
   end
+
+  test "part 2 example" do
+    assert lowest_risk_path(@example, 5) == 315
+  end
 end
