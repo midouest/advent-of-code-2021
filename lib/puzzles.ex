@@ -19,7 +19,8 @@ defmodule Advent.Puzzles do
     Advent.Day13,
     Advent.Day14,
     Advent.Day15,
-    Advent.Day16
+    Advent.Day16,
+    Advent.Day17
   ]
 
   def all, do: @puzzles
