@@ -13,6 +13,16 @@
       "startApps": true,
       "projectDir": "${workspaceRoot}",
       "requireFiles": ["test/**/test_helper.exs", "test/**/*_test.exs"]
+    },
+    {
+      "type": "mix_task",
+      "name": "mix test (wip)",
+      "request": "launch",
+      "task": "test",
+      "taskArgs": ["--trace", "--only", "wip"],
+      "startApps": true,
+      "projectDir": "${workspaceRoot}",
+      "requireFiles": ["test/**/test_helper.exs", "test/**/*_test.exs"]
     }
   ]
 }
