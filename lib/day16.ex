@@ -17,7 +17,8 @@ defmodule Advent.Day16 do
     line
     |> Decoder.parse()
     |> Decoder.decode(1)
-    |> Decoder.version_sum()
+    |> Decoder.packet()
+    |> sum_versions()
   end
 
   def value([line]) do
@@ -26,6 +27,15 @@ defmodule Advent.Day16 do
     |> Decoder.decode(1)
     |> Decoder.packet()
     |> evaluate()
+  end
+
+  defp sum_versions(%{type_id: 4, version: version}), do: version
+
+  defp sum_versions(%{version: version, packets: packets}) do
+    version +
+      (packets
+       |> Enum.map(&sum_versions/1)
+       |> Enum.sum())
   end
 
   defp evaluate(%{type_id: 0, packets: packets}), do: reduce(packets, &Enum.sum/1)
@@ -45,9 +55,9 @@ defmodule Advent.Day16 do
 end
 
 defmodule Advent.Day16.Decoder do
-  defstruct input: [], packet: nil, packets: []
+  defstruct input: [], partial: %{}, packets: []
 
-  alias __MODULE__, as: Decoder
+  alias __MODULE__, as: D
 
   def parse(line) do
     line
@@ -60,100 +70,82 @@ defmodule Advent.Day16.Decoder do
     |> new()
   end
 
-  def new(input), do: %Decoder{input: input}
+  def new(input), do: %D{input: input}
 
-  def packets(%Decoder{packets: packets}), do: packets
-  def packet(%Decoder{packets: [packet]}), do: packet
+  def packets(%D{packets: packets}), do: packets
+  def packet(%D{packets: [packet]}), do: packet
 
-  def version_sum(%Decoder{packets: packets}) do
-    packets
-    |> Enum.map(&sum_versions/1)
-    |> Enum.sum()
-  end
+  def decode(%D{} = decoder, 0), do: decoder
 
-  def decode(%Decoder{} = decoder, 0), do: decoder
-
-  def decode(%Decoder{} = decoder, n) do
+  def decode(%D{} = decoder, n) do
     decoder
-    |> take_header()
-    |> take_payload()
+    |> version()
+    |> type()
+    |> payload()
     |> decode(n - 1)
   end
 
-  def decode_all(%Decoder{input: []} = decoder), do: decoder
+  def decode_all(%D{input: []} = decoder), do: decoder
 
-  def decode_all(%Decoder{} = decoder) do
+  def decode_all(%D{} = decoder) do
     decoder
     |> decode(1)
     |> decode_all()
   end
 
-  defp take_header(%Decoder{} = decoder) do
-    decoder
-    |> take_version()
-    |> take_type()
-  end
-
-  defp take_version(%Decoder{input: input} = decoder) do
+  defp version(%D{input: input, partial: partial} = decoder) do
     {bits, input} = Enum.split(input, 3)
     version = Integer.undigits(bits, 2)
-    %Decoder{decoder | input: input, packet: %{version: version}}
+    partial = Map.put(partial, :version, version)
+    %D{decoder | input: input, partial: partial}
   end
 
-  defp take_type(%Decoder{input: input, packet: packet} = decoder) do
+  defp type(%D{input: input, partial: partial} = decoder) do
     {bits, input} = Enum.split(input, 3)
     type_id = Integer.undigits(bits, 2)
-    packet = Map.put(packet, :type_id, type_id)
-    %Decoder{decoder | input: input, packet: packet}
+    partial = Map.put(partial, :type_id, type_id)
+    %D{decoder | input: input, partial: partial}
   end
 
-  defp take_payload(%Decoder{packet: %{type_id: type_id}} = decoder) do
-    if type_id == 4, do: take_literal(decoder), else: take_operator(decoder)
+  defp payload(%D{partial: %{type_id: type_id}} = decoder) do
+    if type_id == 4, do: literal(decoder), else: operator(decoder)
   end
 
-  defp take_literal(%Decoder{input: input, packet: packet, packets: packets} = decoder) do
-    {value, input} = split_literal(input)
-    packet = Map.put(packet, :value, value)
-    packets = packets ++ [packet]
-    %Decoder{decoder | input: input, packet: nil, packets: packets}
+  defp literal(%D{input: input, partial: partial, packets: packets}) do
+    {value, input} = decode_literal(input)
+    partial = Map.put(partial, :value, value)
+    packets = packets ++ [partial]
+    %D{input: input, partial: %{}, packets: packets}
   end
 
-  defp take_operator(
-         %Decoder{input: [length_type_id | input], packet: packet, packets: packets} = decoder
-       ) do
+  defp operator(%D{input: [len_type_id | input], partial: partial, packets: packets}) do
     {bits, input} =
-      case length_type_id do
+      case len_type_id do
         0 -> Enum.split(input, 15)
         1 -> Enum.split(input, 11)
       end
 
-    count = Integer.undigits(bits, 2)
-    {subpackets, input} = split_subpackets(length_type_id, input, count)
-
-    packet =
-      packet
-      |> Map.put(:length_type_id, length_type_id)
-      |> Map.put(:length, count)
-      |> Map.put(:packets, subpackets)
-
-    packets = packets ++ [packet]
-    %Decoder{decoder | input: input, packet: nil, packets: packets}
+    len = Integer.undigits(bits, 2)
+    {subpackets, input} = decode_subpackets(len_type_id, input, len)
+    partial = Map.put(partial, :packets, subpackets)
+    packets = packets ++ [partial]
+    %D{input: input, partial: %{}, packets: packets}
   end
 
-  defp split_literal(input), do: split_literal(input, [])
+  defp decode_literal(input), do: decode_literal(input, [])
 
-  defp split_literal([0 | input], acc) do
+  defp decode_literal([0 | input], acc) do
     {bits, input} = Enum.split(input, 4)
     literal = Integer.undigits(acc ++ bits, 2)
     {literal, input}
   end
 
-  defp split_literal([1 | input], acc) do
+  defp decode_literal([1 | input], acc) do
     {bits, input} = Enum.split(input, 4)
-    split_literal(input, acc ++ bits)
+    decode_literal(input, acc ++ bits)
   end
 
-  defp split_subpackets(0, input, bit_count) do
+  defp decode_subpackets(0, input, bit_count) do
     {input, rest} = Enum.split(input, bit_count)
 
     packets =
@@ -165,8 +157,8 @@ defmodule Advent.Day16.Decoder do
     {packets, rest}
   end
 
-  defp split_subpackets(1, input, packet_count) do
-    %Decoder{input: input, packets: packets} =
+  defp decode_subpackets(1, input, packet_count) do
+    %D{input: input, packets: packets} =
       input
       |> new()
       |> decode(packet_count)
@@ -176,13 +168,4 @@ defmodule Advent.Day16.Decoder do
 
   defp pad_leading(bits) when length(bits) == 4, do: bits
   defp pad_leading(bits), do: List.duplicate(0, 4 - length(bits)) ++ bits
-
-  defp sum_versions(%{type_id: 4, version: version}), do: version
-
-  defp sum_versions(%{version: version, packets: packets}) do
-    version +
-      (packets
-       |> Enum.map(&sum_versions/1)
-       |> Enum.sum())
-  end
 end

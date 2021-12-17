@@ -29,8 +29,6 @@ defmodule Day16Test do
              %{
                version: 1,
                type_id: 6,
-               length_type_id: 0,
-               length: 27,
                packets: [
                  %{version: 6, type_id: 4, value: 10},
                  %{version: 2, type_id: 4, value: 20}
@@ -49,8 +47,6 @@ defmodule Day16Test do
              %{
                version: 7,
                type_id: 3,
-               length_type_id: 1,
-               length: 3,
                packets: [
                  %{version: 2, type_id: 4, value: 1},
                  %{version: 4, type_id: 4, value: 2},
