@@ -2,20 +2,20 @@ defmodule Advent do
   @doc """
   Read and trim each line of the file at the given path
   """
-  def read(path) do
+  def read(path, fun \\ &String.trim/1) do
     path
-    |> stream()
+    |> stream(fun)
     |> Enum.to_list()
   end
 
   @doc """
   Lazily read and trim each line of the file at the given path
   """
-  def stream(path) do
+  def stream(path, fun \\ &String.trim/1) do
     path
     |> File.open!([:read])
     |> IO.stream(:line)
-    |> Stream.map(&String.trim/1)
+    |> Stream.map(fun)
   end
 
   @doc """
