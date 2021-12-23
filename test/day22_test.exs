@@ -108,6 +108,6 @@ defmodule Day22Test do
 
   test "part 2 example" do
     assert count_on(@reboot_example) == 474_140
-    # assert count_on(@reboot_example) == 2_758_514_936_282_235
+    assert count_on(@reboot_example, nil) == 2_758_514_936_282_235
   end
 end
