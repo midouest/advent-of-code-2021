@@ -12,9 +12,20 @@ defmodule Advent.Day23 do
 
   def part2() do
     load_puzzle()
+    |> organize(true)
   end
 
-  def organize(lines) do
+  @folded [
+    "  #D#C#B#A#",
+    "  #D#B#A#C#"
+  ]
+
+  def organize(lines, unfold? \\ false) do
+    lines =
+      if unfold?,
+        do: List.insert_at(lines, 3, @folded) |> List.flatten(),
+        else: lines
+
     nbs = &State.neighbors/1
     dist = fn _, b -> b.cost end
     h = fn a, _ -> 1.5 * State.estimated_cost(a) end
@@ -30,48 +41,49 @@ defmodule Advent.Day23 do
 end
 
 defmodule Advent.Day23.State do
-  defstruct map: nil, cost: 0
+  defstruct burrow: nil, cost: 0
 
   alias __MODULE__, as: State
   alias Advent.Day23.Burrow
   alias Advent.Day23.Amphipod
 
   def parse(lines) do
-    map = Burrow.parse(lines)
-    %State{map: map}
+    burrow = Burrow.parse(lines)
+    %State{burrow: burrow}
   end
 
-  def estimated_cost(%State{map: map}) do
-    map
-    |> Enum.filter(fn {coord, amp} -> Burrow.must_move?(map, amp, coord) end)
+  def estimated_cost(%State{burrow: burrow}) do
+    burrow.map
+    |> Enum.filter(fn {coord, amp} -> Burrow.must_move?(burrow, amp, coord) end)
     |> Enum.map(fn {coord, amp} ->
       e = Amphipod.energy(amp)
       # Assume worst case
-      Burrow.cost(e, coord, {amp, 3})
+      Burrow.cost(e, coord, {amp, burrow.y_max})
     end)
     |> Enum.sum()
   end
 
-  def neighbors(%State{map: map}) do
-    map
-    |> Enum.filter(fn {coord, amp} -> Burrow.must_move?(map, amp, coord) end)
+  def neighbors(%State{burrow: burrow}) do
+    burrow.map
+    |> Enum.filter(fn {coord, amp} -> Burrow.must_move?(burrow, amp, coord) end)
     |> Enum.flat_map(fn {coord, amp} ->
       e = Amphipod.energy(amp)
 
-      Burrow.moves(map, coord, amp, e)
+      Burrow.moves(burrow, coord, amp, e)
       |> Enum.map(fn {dest, cost} ->
-        map =
-          map
-          |> Map.delete(coord)
-          |> Map.put(dest, amp)
-
-        %State{map: map, cost: cost}
+        burrow = Burrow.move(burrow, coord, dest, amp)
+        %State{burrow: burrow, cost: cost}
       end)
     end)
   end
 
-  def final?(%State{map: map}) do
-    Enum.all?(map, fn {{x, y}, a} -> y > 1 and x == a end)
+  def final?(%State{burrow: burrow}) do
+    Enum.all?(burrow.map, fn {{x, y}, a} -> y > 1 and x == a end)
+  end
+
+  def print(%State{burrow: burrow, cost: cost}) do
+    Burrow.print(burrow)
+    IO.puts(Integer.to_string(cost))
   end
 end
 
@@ -104,28 +116,49 @@ defmodule Advent.Day23.Amphipod do
 end
 
 defmodule Advent.Day23.Burrow do
+  defstruct [:map, :y_max]
+
+  alias __MODULE__, as: Burrow
   alias Advent.Day23.Amphipod
 
   def parse(lines) do
-    lines
-    |> Enum.with_index()
-    |> Enum.flat_map(fn {line, y} ->
-      line
-      |> String.graphemes()
+    map =
+      lines
       |> Enum.with_index()
-      |> Enum.filter(fn {c, _} -> Amphipod.amphipod?(c) end)
-      |> Enum.map(fn {c, x} -> {{x, y}, Amphipod.room_x(c)} end)
-    end)
-    |> Map.new()
+      |> Enum.flat_map(fn {line, y} ->
+        line
+        |> String.graphemes()
+        |> Enum.with_index()
+        |> Enum.filter(fn {c, _} -> Amphipod.amphipod?(c) end)
+        |> Enum.map(fn {c, x} -> {{x, y}, Amphipod.room_x(c)} end)
+      end)
+      |> Map.new()
+
+    y_max =
+      map
+      |> Map.keys()
+      |> Enum.max_by(&elem(&1, 1))
+      |> elem(1)
+
+    %Burrow{map: map, y_max: y_max}
   end
 
-  def moves(map, initial, amp, e) do
+  def move(%Burrow{map: map} = b, initial, dest, amp) do
+    map =
+      map
+      |> Map.delete(initial)
+      |> Map.put(dest, amp)
+
+    %Burrow{b | map: map}
+  end
+
+  def moves(%Burrow{map: map, y_max: y_max} = b, initial, amp, e) do
     frontier =
       initial
-      |> neighbors()
+      |> neighbors(y_max)
       |> Enum.reject(&Map.has_key?(map, &1))
 
-    valid_moves(map, amp, initial, frontier, MapSet.new(), [])
+    valid_moves(b, amp, initial, frontier, MapSet.new(), [])
     |> Enum.map(fn coord -> {coord, cost(e, initial, coord)} end)
   end
 
@@ -141,7 +174,7 @@ defmodule Advent.Day23.Burrow do
 
   def valid_moves(_, _, _, [], _, valid), do: valid
 
-  def valid_moves(map, amp, initial, frontier, visited, valid) do
+  def valid_moves(%Burrow{map: map, y_max: y_max} = b, amp, initial, frontier, visited, valid) do
     visited =
       frontier
       |> MapSet.new()
@@ -150,7 +183,7 @@ defmodule Advent.Day23.Burrow do
     {next_frontier, valid} =
       Enum.reduce(frontier, {[], valid}, fn coord, {next_frontier, valid} ->
         valid =
-          if valid_move?(map, amp, initial, coord) do
+          if valid_move?(b, amp, initial, coord) do
             [coord | valid]
           else
             valid
@@ -158,16 +191,16 @@ defmodule Advent.Day23.Burrow do
 
         unexplored =
           coord
-          |> neighbors()
+          |> neighbors(y_max)
           |> Enum.reject(&(MapSet.member?(visited, &1) or Map.has_key?(map, &1)))
 
         {next_frontier ++ unexplored, valid}
       end)
 
-    valid_moves(map, amp, initial, next_frontier, visited, valid)
+    valid_moves(b, amp, initial, next_frontier, visited, valid)
   end
 
-  def valid_move?(map, amp, initial, coord) do
+  def valid_move?(%Burrow{map: map} = b, amp, initial, coord) do
     cond do
       outside_room?(coord) ->
         # Amphipods will never stop on the space immediately outside any room.
@@ -190,7 +223,7 @@ defmodule Advent.Day23.Burrow do
             # place and will not move again until they can move fully into a room.)
             false
 
-          in_final_room?(coord, amp) and not stranger_in_room?(map, amp) ->
+          in_final_room?(coord, amp) and not stranger_in_room?(b, amp) ->
             # Amphipods will never move from the hallway into a room unless that
             # room is their destination room and that room contains no amphipods
             # which do not also have that room as their own destination. If an
@@ -210,19 +243,19 @@ defmodule Advent.Day23.Burrow do
     end
   end
 
-  def neighbors({1, 1}), do: [{2, 1}]
-  def neighbors({11, 1}), do: [{10, 1}]
+  def neighbors({1, 1}, _), do: [{2, 1}]
+  def neighbors({11, 1}, _), do: [{10, 1}]
 
-  def neighbors({x, 1}) when x == 3 or x == 5 or x == 7 or x == 9,
+  def neighbors({x, 1}, _) when x == 3 or x == 5 or x == 7 or x == 9,
     do: [{x - 1, 1}, {x, 2}, {x + 1, 1}]
 
-  def neighbors({x, 1}), do: [{x - 1, 1}, {x + 1, 1}]
-  def neighbors({x, 2}), do: [{x, 1}, {x, 3}]
-  def neighbors({x, 3}), do: [{x, 2}]
+  def neighbors({x, 1}, _), do: [{x - 1, 1}, {x + 1, 1}]
+  def neighbors({x, y}, y), do: [{x, y - 1}]
+  def neighbors({x, y}, _), do: [{x, y - 1}, {x, y + 1}]
 
   def in_hallway?({_, y}), do: y == 1
 
-  def in_room?({_, y}), do: y == 2 or y == 3
+  def in_room?({_, y}), do: y > 1
 
   def in_final_room?({x, _} = coord, amp), do: in_room?(coord) and x == amp
 
@@ -237,10 +270,10 @@ defmodule Advent.Day23.Burrow do
       end
   end
 
-  def stranger_in_room?(map, amp) do
+  def stranger_in_room?(%Burrow{map: map, y_max: y_max}, amp) do
     # Default to amp to allow entering empty rooms
-    Map.get(map, {amp, 2}, amp) != amp or
-      Map.get(map, {amp, 3}, amp) != amp
+    2..y_max
+    |> Enum.any?(fn y -> Map.get(map, {amp, y}, amp) != amp end)
   end
 
   @doc """
@@ -248,11 +281,14 @@ defmodule Advent.Day23.Burrow do
   its final room, it must move if it's blocking the other empty spot in the
   final room.
   """
-  def must_move?(map, amp, {x, 2}), do: amp != x or amp != Map.get(map, {x, 3})
+  def must_move?(%Burrow{map: map, y_max: y_max}, amp, {x, 2}) do
+    amp != x or 2..y_max |> Enum.any?(fn y -> Map.get(map, {x, y}) != amp end)
+  end
+
   def must_move?(_, amp, {x, 3}), do: amp != x
   def must_move?(_, _, _), do: true
 
-  def print(map) do
+  def print(%Burrow{map: map, y_max: y_max}) do
     IO.puts("#############")
 
     IO.write("#")
@@ -268,14 +304,17 @@ defmodule Advent.Day23.Burrow do
 
     IO.puts("##")
 
-    IO.write("  #")
+    Enum.each(3..y_max, fn y ->
+      IO.write("  #")
 
-    Enum.each(3..9//2, fn x ->
-      print_coord(map, {x, 3})
-      IO.write("#")
+      Enum.each(3..9//2, fn x ->
+        print_coord(map, {x, y})
+        IO.write("#")
+      end)
+
+      IO.puts("")
     end)
 
-    IO.puts("")
     IO.puts("  #########")
   end
 
