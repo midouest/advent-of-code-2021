@@ -15,8 +15,7 @@ defmodule Day23Test do
     assert organize(@example) == 12521
   end
 
-  # @tag timeout: :infinity
-  # test "part 2 example" do
-  #   assert organize(@example, true) == 44169
-  # end
+  test "part 2 example" do
+    assert organize(@example, true) == 44169
+  end
 end
